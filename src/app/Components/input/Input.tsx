@@ -1,17 +1,26 @@
-import React from 'react';
-import styles from './Input.module.scss';
+import React from "react";
+import styles from "./Input.module.scss";
 
-const Input: React.FC = () => {
+interface InputProps {
+  label: string;
+  name: string;
+  type?: string;
+}
+
+const Input: React.FC<InputProps> = ({ label, name, type = "text" }) => {
   return (
     <div className={styles.inputGroup}>
       <input
         required
-        type="text"
-        name="text"
+        type={type}
+        name={name}
         autoComplete="off"
         className={styles.input}
+        id={name}
       />
-      <label className={styles.userLabel}>First Name</label>
+      <label htmlFor={name} className={styles.userLabel}>
+        {label}
+      </label>
     </div>
   );
 };
