@@ -1,12 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import styles from "./LoginForm.module.scss";
 import Input from "../input/Input";
 import Button from "../button/Button";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
+import { handleLogin } from "../dataform/dataform";
+
 type FormData = {
   firstName: string;
   lastName: string;
@@ -20,29 +22,14 @@ export default function LoginForm() {
     formState: { errors },
   } = useForm<FormData>();
 
-  const [loginResult, setLoginResult] = useState<string | null>(null);
+  const router = useRouter();
 
   const onSubmit = async (data: FormData) => {
-    const { firstName, lastName } = data;
-
-    try {
-      const res = await axios.get("/api.json");
-      const user = res.data.results[0];
-
-      const apiFirstName = user.name.first.toLowerCase();
-      const apiLastName = user.name.last.toLowerCase();
-
-      if (
-        apiFirstName === firstName.toLowerCase().trim() &&
-        apiLastName === lastName.toLowerCase().trim()
-      ) {
-        toast.success("✅ Login successful");
-      } else {
-        toast.error("❌ Login failed: Name does not match API");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      toast.error("❌ Login failed: API error");
+    const success = await handleLogin(data);
+    if (success) {
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 2500);
     }
   };
 
@@ -76,8 +63,7 @@ export default function LoginForm() {
               required: "Phone number is required",
               pattern: {
                 value: /^09\d{9}$/,
-                message:
-                  "Phone number must start with 09 and be exactly 11 digits",
+                message: "Phone number must start with 09 and be exactly 11 digits",
               },
             })}
           />
@@ -86,7 +72,6 @@ export default function LoginForm() {
           )}
 
           <Button />
-          {loginResult && <p className={styles.result}>{loginResult}</p>}
         </form>
       </div>
       <ToastContainer
